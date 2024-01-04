@@ -7,7 +7,6 @@ import numpy as np
 Josh this is hacky, env that runs this py script needs the pcds_conda env 
 '''
 
-
 def main():
   argparser = argparse.ArgumentParser()
   argparser.add_argument("-t", "--sample_time", help="time in seconds to sample", type=float)
@@ -15,7 +14,7 @@ def main():
 
   args = argparser.parse_args()
 
-  data = np.zeros((1000, 2))
+  data = np.zeros((1000, 3))
 
   startTime = time.time()
 
@@ -26,7 +25,11 @@ def main():
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = process.communicate()
     data[i, 0] = json.loads(out.decode('utf-8'))['MAIN.fbPowerMeter.fVoltage'][0]
-    data[i,1] = time.time() - startTime
+    process = subprocess.Popen(['ads-async get --add-route plc-tst-proto4 MAIN.fValidatorVoltage'], \
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    out, err = process.communicate()
+    data[i,1] = json.loads(out.decode('utf-8'))['MAIN.fValidatorVoltage'][0]
+    data[i,2] = time.time() - startTime
     print(data[i, 0])
     i = i + 1
   data = data[:i]
