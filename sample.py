@@ -3,6 +3,7 @@ import time
 import subprocess
 import json
 import numpy as np
+import pandas as pd
 '''
 Josh this is hacky, env that runs this py script needs the pcds_conda env 
 '''
@@ -14,28 +15,29 @@ def main():
 
   args = argparser.parse_args()
 
-  data = np.zeros((1000, 3))
 
   startTime = time.time()
 
   should_read = lambda : ((time.time() - startTime) < args.sample_time)
   i = 0
+
+  f = open(args.file_name, "w")
   while (should_read()):
+    data = []
     process = subprocess.Popen(['ads-async get --add-route plc-tst-proto4 MAIN.fbPowerMeter.fVoltage'], \
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = process.communicate()
-    data[i, 0] = json.loads(out.decode('utf-8'))['MAIN.fbPowerMeter.fVoltage'][0]
+    data.append(str(json.loads(out.decode('utf-8'))['MAIN.fbPowerMeter.fVoltage'][0]))
     process = subprocess.Popen(['ads-async get --add-route plc-tst-proto4 MAIN.fValidatorVoltage'], \
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = process.communicate()
-    data[i,1] = json.loads(out.decode('utf-8'))['MAIN.fValidatorVoltage'][0]
-    data[i,2] = time.time() - startTime
-    print(data[i, 0])
-    i = i + 1
-  data = data[:i]
-  print(data)
-  data.tofile(args.file_name, sep=",")
+    data.append(str(json.loads(out.decode('utf-8'))['MAIN.fValidatorVoltage'][0]))
+    data.append(str(time.time() - startTime))
+    line = ','.join(data)
+    print(line)
+    f.write(line + '\n')
 
+  f.close()
 
 if __name__ == "__main__":
   main( )
