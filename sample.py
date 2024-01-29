@@ -28,10 +28,10 @@ def main():
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = process.communicate()
     data.append(str(json.loads(out.decode('utf-8'))['MAIN.fbPowerMeter.fVoltage'][0]))
-    process = subprocess.Popen(['ads-async get --add-route plc-tst-proto4 MAIN.fValidatorVoltage'], \
+    process = subprocess.Popen(['ads-async get --add-route plc-tst-proto4 MAIN.fVoltageOther'], \
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = process.communicate()
-    data.append(str(json.loads(out.decode('utf-8'))['MAIN.fValidatorVoltage'][0]))
+    data.append(str(json.loads(out.decode('utf-8'))['MAIN.fVoltageOther'][0]))
     data.append(str(time.time() - startTime))
     line = ','.join(data)
     print(line)
